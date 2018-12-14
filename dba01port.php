@@ -46,12 +46,26 @@ $sql=<<<SQL
       from DBA01
       where
         jh=:pjh
+        and rq BETWEEN :pminDate AND :pmaxDate
       order by rq
 SQL;
 $stmt=$pdo->prepare($sql);
-$stmt->bindValue(':pjh','DXX161X6');
+$stmt->bindValue(':pjh',$_POST["wellname"]);
+$qsrq=$_POST["minDate"];//起始日期
+$zzrq=$_POST["maxDate"];//终止日期
+if(empty($qsrq)){
+    $qsrq=date("Y-m-d",strtotime("-30 day"));
+}
+if(empty($zzrq)){
+    $zzrq=date("Y-m-d",time());
+}
+$stmt->bindValue(':pminDate',$qsrq);
+$stmt->bindValue(':pmaxDate',$zzrq);
 //$stmt = $pdo->query($sql);
 $stmt->execute();
+//$stmt->debugDumpParams();
+
+
 //返回一个PDOStatement对象
 
 //$row = $stmt->fetch(); //从结果集中获取下一行，用于while循环
@@ -63,7 +77,12 @@ $row_count = $stmt->rowCount(); //记录数
 //echo('<br/>');
 //var_dump(json_encode($rows));
 
-echo (json_encode($rows));
+if ($row_count==0) {
+    echo "没有查到数据。";
+  } else {
+    echo (json_encode($rows));
+  }
+
 
 /*$data = array( 
 'tid' => 100, 
